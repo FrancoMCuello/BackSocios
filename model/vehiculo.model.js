@@ -26,6 +26,10 @@ Vehiculo.init(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: User,
+        Key: "id",
+      },
     },
   },
   {
