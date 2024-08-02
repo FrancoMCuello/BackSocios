@@ -37,6 +37,24 @@ const getVehiculo = async (req, res) => {
   }
 };
 
+const getVehiculoPatente = async (req, res) => {
+  try {
+    const vehiculo = await Vehiculo.findOne({
+      where: { patente: req.params.patente },
+      include: {
+        model: User,
+      },
+    });
+    if (!vehiculo) {
+      return res.status(404).json({ error: "No se encuentra vehiculo" });
+    }
+    res.json(vehiculo);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Intente más tarde" });
+  }
+};
+
 const createVehiculo = async (req, res) => {
   try {
     const { patente, marca, modelo, userId } = req.body;
@@ -83,6 +101,7 @@ const deleteVehiculo = async (req, res) => {
 module.exports = {
   getAllVehiculos,
   getVehiculo,
+  getVehiculoPatente,
   createVehiculo,
   updateVehiculo,
   deleteVehiculo,

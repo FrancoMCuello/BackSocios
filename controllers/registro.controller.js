@@ -58,16 +58,25 @@ const createRegistro = async (req, res) => {
 
   try {
     const result = await db.transaction(async (t) => {
-      const crearUsuario = await User.create(
-        { nombre, apellido, contacto },
-        { transaction: t }
-      );
+      let usuario = await User.findOne({ where: { contacto } });
+      // Si el usuario no existe, crearlo
+      if (!usuario) {
+        usuario = await User.create(
+          { nombre, apellido, contacto },
+          { transaction: t }
+        );
+      }
 
-      const crearVehiculo = await Vehiculo.create(
-        { patente, modelo, marca, userId: crearUsuario.id },
-        { transaction: t }
-      );
-
+      let vehiculo = await Vehiculo.findOne({
+        where: { patente },
+      });
+      // Si el vehículo no existe, crearlo
+      if (!vehiculo) {
+        vehiculo = await Vehiculo.create(
+          { patente, modelo, marca, userId: usuario.id },
+          { transaction: t }
+        );
+      }
       const crearRegistro = await Registro.create(
         {
           fecha_ingreso,
@@ -75,12 +84,12 @@ const createRegistro = async (req, res) => {
           tipo_pago,
           estado_lavado,
           estado_vehiculo,
-          vehiculoId: crearVehiculo.id,
+          vehiculoId: vehiculo.id,
         },
         { transaction: t }
       );
 
-      return { crearUsuario, crearVehiculo, crearRegistro };
+      return { usuario, vehiculo, crearRegistro };
     });
 
     res.status(201).json(result);
