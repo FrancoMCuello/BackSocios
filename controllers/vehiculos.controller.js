@@ -10,7 +10,7 @@ const getAllVehiculos = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ["nombre", "apellido"],
+          attributes: ["nombre", "apellido", "contacto"],
         },
         {
           model: Registro,
