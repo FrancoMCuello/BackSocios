@@ -46,27 +46,56 @@ const getRegistro = async (req, res) => {
 };
 
 const createRegistro = async (req, res) => {
-  try {
-    const {
-      fecha_ingreso,
-      estado_pago,
-      tipo_pago,
-      estado_lavado,
-      estado_vehiculo,
-      vehiculoId,
-    } = req.body;
+  const { nombre, apellido, contacto } = req.body.user;
+  const { patente, marca, modelo } = req.body.vehiculo;
+  const {
+    fecha_ingreso,
+    estado_pago,
+    tipo_pago,
+    estado_lavado,
+    estado_vehiculo,
+  } = req.body.registro;
 
-    await Registro.sync();
-    const newRegistro = await Registro.create({
-      fecha_ingreso,
-      estado_pago,
-      tipo_pago,
-      estado_lavado,
-      estado_vehiculo,
-      vehiculoId,
+  try {
+    const result = await db.transaction(async (t) => {
+      let usuario = await User.findOne({ where: { contacto } });
+      // Si el usuario no existe, crearlo
+      if (!usuario) {
+        usuario = await User.create(
+          { nombre, apellido, contacto },
+          { transaction: t }
+        );
+      }
+
+      let vehiculo = await Vehiculo.findOne({
+        where: { patente },
+      });
+      // Si el vehículo no existe, crearlo
+      if (!vehiculo) {
+        vehiculo = await Vehiculo.create(
+          { patente, modelo, marca, userId: usuario.id },
+          { transaction: t }
+        );
+      }
+      const crearRegistro = await Registro.create(
+        {
+          fecha_ingreso,
+          estado_pago,
+          tipo_pago,
+          estado_lavado,
+          estado_vehiculo,
+          vehiculoId: vehiculo.id,
+        },
+        { transaction: t }
+      );
+
+      return { usuario, vehiculo, crearRegistro };
     });
-    res.status(201).json(newRegistro);
+
+    res.status(201).json(result);
   } catch (error) {
+    console.log(error);
+    console.log("datos recibidos: ", req.body);
     res.status(500).json({ error: "Intente mas tarde" });
   }
 };

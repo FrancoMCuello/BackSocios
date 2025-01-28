@@ -1,5 +1,6 @@
 const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../db/db");
+const Vehiculo = require("./vehiculo.model");
 
 class Registro extends Model {}
 
@@ -29,6 +30,10 @@ Registro.init(
     estado_vehiculo: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: Vehiculo,
+        key: "id",
+      },
     },
   },
   {

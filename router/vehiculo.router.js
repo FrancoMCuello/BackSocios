@@ -6,6 +6,8 @@ router.get("/", controller.getAllVehiculos);
 
 router.get("/:id", controller.getVehiculo);
 
+router.get("/patente/:patente", controller.getVehiculoPatente);
+
 router.post("/", controller.createVehiculo);
 
 router.put("/:id", controller.updateVehiculo);

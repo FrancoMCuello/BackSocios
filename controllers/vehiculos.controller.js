@@ -10,7 +10,7 @@ const getAllVehiculos = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ["nombre", "apellido"],
+          attributes: ["nombre", "apellido", "contacto"],
         },
         {
           model: Registro,
@@ -37,9 +37,33 @@ const getVehiculo = async (req, res) => {
   }
 };
 
-const createVehiculo = async (req, res) => {
+const getVehiculoPatente = async (req, res) => {
   try {
-    const { patente, marca, modelo, userId } = req.body;
+    const vehiculo = await Vehiculo.findOne({
+      where: { patente: req.params.patente },
+      include: {
+        model: User,
+      },
+    });
+    if (!vehiculo) {
+      return res.status(404).json({ error: "No se encuentra vehiculo" });
+    }
+    res.json(vehiculo);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Intente más tarde" });
+  }
+};
+
+const createVehiculo = async (req, res) => {
+  const { patente, marca, modelo, userId } = req.body;
+  try {
+    const vehiculoExistente = await Vehiculo.findOne({ where: { patente } });
+    if (vehiculoExistente) {
+      return res
+        .status(400)
+        .json({ error: "El vehículo con esta patente ya existe." });
+    }
     await Vehiculo.sync();
     const newVehiculo = await Vehiculo.create({
       patente,
@@ -83,6 +107,7 @@ const deleteVehiculo = async (req, res) => {
 module.exports = {
   getAllVehiculos,
   getVehiculo,
+  getVehiculoPatente,
   createVehiculo,
   updateVehiculo,
   deleteVehiculo,
