@@ -23,14 +23,14 @@ app.get("/", (req, res) => {
   res.json("Bienvenido a nuestra API.");
 });
 
-async function testConnection() {
+/* async function testConnection() {
   try {
     await sequelize.authenticate();
     console.log("Conectado a la bd!!");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
-}
+} */
 
 testConnection();
 
