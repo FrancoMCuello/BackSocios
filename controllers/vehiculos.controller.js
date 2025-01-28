@@ -56,8 +56,14 @@ const getVehiculoPatente = async (req, res) => {
 };
 
 const createVehiculo = async (req, res) => {
+  const { patente, marca, modelo, userId } = req.body;
   try {
-    const { patente, marca, modelo, userId } = req.body;
+    const vehiculoExistente = await Vehiculo.findOne({ where: { patente } });
+    if (vehiculoExistente) {
+      return res
+        .status(400)
+        .json({ error: "El vehículo con esta patente ya existe." });
+    }
     await Vehiculo.sync();
     const newVehiculo = await Vehiculo.create({
       patente,
