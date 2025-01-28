@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const sequelize = require("./db/db");
+/* const sequelize = require("./db/db"); */
 require("./model/syncModels");
 require("./model/asociations");
 
